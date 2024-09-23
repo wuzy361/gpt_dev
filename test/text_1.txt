@@ -1,0 +1,24 @@
+冗余信息还是有用信息?
+——基于IPO招股说明书风险信息披露的一项实验研究
+Redundant Message or Useful Information?
+An Experimental Study on Risk Disclosure in IPO Prospectus
+
+陈旭霞  高雅馨  吴 溪
+CHEN Xu-xia     GAO Yanxin     WU Xi
+
+[摘要] 尽管从直观上的理念而言，冗余信息并不利于资本市场的信息使用有较长使用信息，即语言学范畴上的较高冗余信息毕竟可能通过信息涵盖或复现深化信息使用人的理解。因此，信息冗余度更高时是否会削弱对于体验使用人的投资决策作用是一个需要实证检验的重要问题。基于IPO 招股说明书风险信息披露的一项实验研究，我们发现读过冗余度更高的招股书的被验者股票投资意图显示出更强烈的投资意愿。进一步分析显示，冗余度更高的风险信息披露伴随被寻超泄漏低的风险感知 2 超试验对公司核心技术感受到更高的潜在市场价值。本文证据表明读者冗余度更高的信息并不必然阻碍投资决策决策，其可能提升投资意愿，从面有助于理解冗余度较高的信息披露之所以存在于市场的微观需求。
+
+[关键词] 信息冗余度  投资意愿  风险感知  实验研究 
+[中图分类号] F230  [文献标识码] A   [文章编号] 1000-1549 (2022) 10–0050–09
+
+Abstract: 
+Intuitively, redundant disclosure may hamper the effective use of information for capital market investors. However, linguistically more redundant disclosure may deepen investors' understanding of information through information inclusion and/or repetition. Therefore, it is an empirical question whether linguistically more redundant disclosure necessarily weakens the usefulness of investment decision making. Based on an experimental study of risk disclosure in the initial public offering (IPO) prospectus, we find that subjects exhibit stronger willingness of stock investment after reading linguistically more redundant disclosure on critical technique leakage risk compared with less redundant disclosure. Further analysis shows that more redundant risk disclosure is associated with subjects' lower perceived risk of critical technique leakage, along with a high perceived market value of the company's critical technique. The evidence suggests that more redundant information is not necessarily irrelevant to investment decision making; rather, it may enhance investment willingness. Taken together, our study helps understand the market demand for linguistically more redundant corporate disclosure.
+
+Key words: Information redundancy   Investment willingness   Risk perception   Experimental study
+
+收稿日期 2022-03-21
+作者简介 陈旭霞，女，1977年8月生；北京工业大学经济管理学院副教授；硕士生导师；管理学博士；研究方向为财务会计与审计； 高雅馨，女，1997年7月生；北京工业大学经济管理学院硕士研究生；研究方向为资本市场信息披露； 吴溪，男，1997年11月生；中央财经大学会计学院硕博学；博士生导师，管理学博士；研究方向为财务会计与审计。本论文通信作者为吴溪，联系方式 wuxi@cufe.edu.cn。
+
+基金项目 国家自然科学基金重点项目“IPO监管审核决策:考虑固风险披露模式变迁、澄清风险与优化提高”（项目编号：71872003）的阶段性研究成果（协助金来源隐去），本文文章自负。
+
+(C)1994-2022 China Academic Journal Electronic Publishing House. All rights reserved. http://www.cnki.net
