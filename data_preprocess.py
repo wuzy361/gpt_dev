@@ -2,6 +2,7 @@ import os
 from pdb import set_trace
 import pandas as pd
 from datetime import datetime, timedelta
+from concurrent.futures import ProcessPoolExecutor
 
 
 # 处理新闻证券关联表
@@ -83,49 +84,102 @@ def get_stock_price_at_time(price_path, symbol, time_str):
         return (None,None,None,None)
 
 
-if __name__ == "__main__":
-    # text = get_embedding("I am a fish, I am a baby fish")
-    # print(text)
-    base_path = "/Users/jerry/code/股票预测/"
-    df1 = process_map_file(base_path + "CSMAR新闻数据/新闻证券关联表2008-2011.csv")
-    df2 = process_news_file(base_path + "CSMAR新闻数据/2011.csv")
-    # set_trace()
+# if __name__ == "__main__":
+#     # text = get_embedding("I am a fish, I am a baby fish")
+#     # print(text)
+#     years = [2012,2013,2014,2015]
+#     for year in years:
+#         base_path = "/Users/jerry/code/股票预测/"
+#         df1 = process_map_file(base_path + "CSMAR新闻数据/新闻证券关联表2012-2015.csv")
+#         df2 = process_news_file(base_path + f"CSMAR新闻数据/{year}.csv")
+#         # set_trace()
+
+#         common_news = pd.merge(df1, df2, on='NewsID')
+#         common_news = common_news.dropna(subset=["NewsContent"])
+#         news_num = len(common_news)
+        
+#         # set_trace()
+#         data_df = pd.DataFrame(columns=['newsid',  'time', 'title', 'symbol', 'shortname', 't1','p1','t2', 'p2', 'tag', 'length', 'content' ])
+#         # set_trace()
+#         for x in range(news_num):
+#             print(x)
+#             symbol = common_news.iloc[x,3]
+#             time = common_news.iloc[x,7]
+#             price_path = base_path + "不复权"
+#             t1,p1,t2,p2 = get_stock_price_at_time(price_path, symbol, time)
+#             if t1 == None:
+#                 print("found None")
+#                 continue
+#             newsid = common_news.iloc[x,0]
+#             time = common_news.iloc[x,10]
+#             title = common_news.iloc[x,2]
+#             symbol = symbol_complete(str(common_news.iloc[x,3]))
+#             shortname = common_news.iloc[x,4]
+#             content = common_news.iloc[x,14]
+#             if type(content) is not str:
+#                 print("no content")
+#                 continue
+#             length = len(content)
+#             tag = None
+#             if p2 - p1 >= 0:
+#                 tag = 1
+#             else:
+#                 tag = 0
+#             # set_trace()
+#             data_df.loc[x] = [newsid, time, title, symbol, shortname, t1, p1, t2, p2,  tag, length, content]
+        
+#         data_df.to_csv(f'data_{year}.csv', index=False,  encoding='utf-8')
+
+
+
+
+def process_year(year, base_path):
+    df1 = process_map_file(base_path + "CSMAR新闻数据/新闻证券关联表2020-2023.csv")
+    df2 = process_news_file(base_path + f"CSMAR新闻数据/{year}.csv")
 
     common_news = pd.merge(df1, df2, on='NewsID')
     common_news = common_news.dropna(subset=["NewsContent"])
     news_num = len(common_news)
-    
-    # set_trace()
-    data_df = pd.DataFrame(columns=['newsid',  'time', 'title', 'symbol', 'shortname', 't1','p1','t2', 'p2', 'tag', 'length', 'content' ])
-    # set_trace()
+
+    data_df = pd.DataFrame(columns=['newsid', 'time', 'title', 'symbol', 'shortname', 't1', 'p1', 't2', 'p2', 'tag', 'length', 'content'])
+
     for x in range(news_num):
-        print(x)
-        symbol = common_news.iloc[x,3]
-        time = common_news.iloc[x,7]
+        if x % 1000 == 0:
+            print(f"{year} {x}") 
+        symbol = common_news.iloc[x, 3]
+        time = common_news.iloc[x, 7]
         price_path = base_path + "不复权"
-        t1,p1,t2,p2 = get_stock_price_at_time(price_path, symbol, time)
-        if t1 == None:
-            print("found None")
+        t1, p1, t2, p2 = get_stock_price_at_time(price_path, symbol, time)
+        if t1 is None:
             continue
-        newsid = common_news.iloc[x,0]
-        time = common_news.iloc[x,10]
-        title = common_news.iloc[x,2]
-        symbol = symbol_complete(str(common_news.iloc[x,3]))
-        shortname = common_news.iloc[x,4]
-        content = common_news.iloc[x,14]
+        newsid = common_news.iloc[x, 0]
+        time = common_news.iloc[x, 10]
+        title = common_news.iloc[x, 2]
+        symbol = symbol_complete(str(common_news.iloc[x, 3]))
+        shortname = common_news.iloc[x, 4]
+        content = common_news.iloc[x, 14]
         if type(content) is not str:
-            print("no content")
             continue
         length = len(content)
-        tag = None
-        if p2 - p1 >= 0:
-            tag = 1
-        else:
-            tag = 0
-        # set_trace()
-        data_df.loc[x] = [newsid, time, title, symbol, shortname, t1, p1, t2, p2,  tag, length, content]
+        tag = 1 if p2 - p1 >= 0 else 0
+        data_df.loc[x] = [newsid, time, title, symbol, shortname, t1, p1, t2, p2, tag, length, content]
+
+    output_path = f'data_{year}.csv'
+    data_df.to_csv(output_path, index=False, encoding='utf-8')
+    return output_path
+
+if __name__ == "__main__":
+    years = [2020,2021,2022,2023]
+    base_path = "/Users/jerry/code/股票预测/"
     
-    data_df.to_csv('data_2011.csv', index=False,  encoding='utf-8')
+    with ProcessPoolExecutor() as executor:
+        futures = [executor.submit(process_year, year, base_path) for year in years]
+        for future in futures:
+            try:
+                result = future.result()
+                print(f"Processed file: {result}")
+            except Exception as e:
+                print(f"Error processing file: {e}")
 
 
     

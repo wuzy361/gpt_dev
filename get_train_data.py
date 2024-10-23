@@ -7,8 +7,8 @@ import ast
 
 
 if __name__ == "__main__":
-   years = [2008,2009,2010,2011]
-   years = [2008]
+#    years = [2009,2010,2011]
+   years = [2012]
 
    for year in years:
        data_path = "data_" + str(year) + "_with_emb.csv" 
