@@ -8,14 +8,16 @@ import pandas as pd
 import ast
 import os
 from sklearn.metrics import confusion_matrix
-if __name__ == "__main__":
+import xgboost as xgb
+from sklearn.metrics import mean_squared_error
 
-    # years = [2008,2009,2010,2011]
-    years = [2012]
+def train_and_test(years, alg, save_res=False):
     X_list = []
     y_list = []
     X = None
     y = None
+
+    
     for year in years:
         x_name = f"{year}_X.npy"
         y_name = f"{year}_y.npy"
@@ -61,12 +63,25 @@ if __name__ == "__main__":
     X_new = np.delete(X, random_selection, axis=0)
     y_new = np.delete(y, random_selection, axis=0)
 
+    print("len(y_new)= " + str(len(y_new)))
     print("y_new= " + str(np.mean(y_new)))
         
-    set_trace()
+    # set_trace()
     # 分割数据集为训练集和测试集
-    X_train, X_test, y_train, y_test = train_test_split(X_new, y_new, test_size=0.2, random_state=42)
+    # X_train, X_test, y_train, y_test = train_test_split(X_new, y_new, test_size=0.2, random_state=42, shuffle=False)
+    train_size = int(len(y_new) * 0.7)
+    val_size = int(len(y_new) * 0.1)
+    test_size = int(len(y_new) * 0.2)
 
+    X_train = X_new[:train_size]
+    y_train = y_new[:train_size]
+    train_size = X_train.shape[0]
+    # y_train = np.random.randint(0, 2, train_size)
+    # set_trace()
+    X_val = X_new[train_size:(train_size+val_size)]
+    y_val = y_new[train_size:(train_size +val_size)]
+    X_test= X_new[(train_size+val_size):]
+    y_test= y_new[(train_size+val_size):]
     print(X_train.shape)
     print(X_test.shape)
     print(y_train.shape)
@@ -78,24 +93,76 @@ if __name__ == "__main__":
     # X_train = scaler.fit_transform(X_train)
     # X_test = scaler.transform(X_test)
 
-    # 创建 SGDClassifier 模型，使用逻辑回归（loss='log'）
-    model = SGDClassifier(loss='log_loss', max_iter=1, learning_rate='constant', eta0=0.01, random_state=42, verbose=1)
+    if alg == "xgb":
+        # 构建DMatrix
+        train_dmatrix = xgb.DMatrix(X_train, label=y_train)
+        val_dmatrix = xgb.DMatrix(X_val, label=y_val)
+        test_dmatrix = xgb.DMatrix(X_test, label=y_test)
 
-    # 训练模型，使用多个 epoch
-    # n_epochs = 32 # 2012 使用32epoch 最好
-    n_epochs= 30
-    for epoch in range(n_epochs):
-        model.partial_fit(X_train, y_train, classes=np.unique(y))
-        print(f"Epoch {epoch + 1}/{n_epochs} completed.")
+        # 设置参数
+        params = {
+            'objective': 'reg:squarederror',  # 预测目标是分类
+            'max_depth': 5,
+            'learning_rate': 0.01,
+            # 'eval_metric': 'logloss',
+            # 'n_estimators': 100,
+            'alpha': 0.1,  # L1正则化项权重
+            'lambda': 0.1  # L2正则化项权重
+        }
 
-    # 预测测试集
-    y_pred = model.predict(X_test)
+        # 训练模型
+        model = xgb.train(params, train_dmatrix, num_boost_round=100)
 
+        # 测试模型
+        y_pred_score = model.predict(test_dmatrix)
+        y_pred = np.round(y_pred).astype(int) 
+
+        # set_trace()
+
+    if alg == "lr":
+        # 创建 SGDClassifier 模型，使用逻辑回归（loss='log'）
+        model = SGDClassifier(loss='log_loss', max_iter=1, learning_rate='constant', eta0=0.01, random_state=42, verbose=0)
+
+        # 训练模型，使用多个 epoch
+        # n_epochs = 32 # 2012 使用32epoch 最好
+        n_epochs= 50
+        for epoch in range(n_epochs):
+            model.partial_fit(X_train, y_train, classes=np.unique(y))
+
+            if epoch %10 == 0:
+                print(f"Epoch {epoch + 1} completed.")
+                y_pred = model.predict(X_val)
+
+                # 计算准确率
+                accuracy = np.mean(y_pred == y_val)
+                print(f"{epoch} Accuracy in : {accuracy:.4f}")
+                conf_matrix = confusion_matrix(y_pred, y_val)
+                print("Confusion Matrix:")
+                print(conf_matrix)
+
+
+        # 预测测试集
+        y_pred = model.predict(X_test)
+    
+    if save_res:
+        tag_df = pd.read_csv(f"time_{year}.csv", on_bad_lines='skip', skiprows=(1, (train_size+val_size)))
+        y_pred_df = pd.DataFrame(y_pred_score, columns=['y_pred'])
+        pre_df = pd.concat([tag_df.reset_index(drop=True), y_pred_df], axis=1)
+        pre_df.to_csv(f"{years}_{alg}_pred.csv")
+        # time_df.loc[x] = [newsid, time, symbol, t2, p2, t3, p3]
     # 计算准确率
     accuracy = np.mean(y_pred == y_test)
-    print(f"Final Accuracy: {accuracy:.2f}")
+    print(f"{year} {alg} Final Accuracy: {accuracy:.4f}")
 
     # 打印混淆矩阵
     conf_matrix = confusion_matrix(y_test, y_pred)
-    print("Confusion Matrix:")
+    print(f"{year} {alg}Confusion Matrix:")
     print(conf_matrix)
+
+if __name__ == "__main__":
+
+    years = [2020, 2021, 2022, 2023]
+    # train_and_test([2020], "xgb")
+    # train_and_test([2020], "lr")
+    train_and_test([2020], "xgb", True)
+    # train_and_test([2023], "lr")

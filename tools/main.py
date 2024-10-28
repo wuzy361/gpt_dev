@@ -4,8 +4,8 @@ import requests
 import os
 from pdb import set_trace
 import argparse
-API_KEY = "sk-HHCb4mYKPg0GUcNN4fDc3c34B90648B89d874fFd138f33C3"
-BASE_URL = "https://api.kwwai.top/v1"
+API_KEY = "sk-EGQd5ib0OWOYWFoC4414C17725Ab47F98113Ba741a76214d"
+BASE_URL = "https://chatapi.midjourney-vip.cn"
 
 def encode_image(image_path):
     with open(image_path, "rb") as image_file:
@@ -66,7 +66,6 @@ def gpt_text(report_path):
     with open(report_path, "r", encoding='utf-8') as f:
         txt_content = f.read()
     message = message + txt_content
-    set_trace()
     if message:
         messages.append(
             {"role": "user", "content": message},
@@ -75,6 +74,7 @@ def gpt_text(report_path):
             model="gpt-4o", messages=messages
         )
         # set_trace()
+    set_trace()
     reply = chat.choices[0].message.content
     print(f"ChatGPT: {reply}")
     return reply

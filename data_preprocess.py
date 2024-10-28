@@ -50,6 +50,7 @@ def get_stock_price_at_time(price_path, symbol, time_str):
     if time_obj_time < comparison_time:
         offset =  1
     delta = timedelta(days=offset)
+    # delta_1 = timedelta(days=1)
     new_time_obj = time_obj - delta
     new_time_obj = new_time_obj.strftime('%Y-%m-%d')
 
@@ -62,26 +63,29 @@ def get_stock_price_at_time(price_path, symbol, time_str):
     result = 0
     if os.path.exists(file_path):
         # print(file_path)
-        df = pd.read_csv(file_path,encoding="GB2312",on_bad_lines='skip')
+        df = pd.read_csv(file_path,encoding="GB2312",on_bad_lines='skip',)
 
         index = df[df["日期"] <= new_time_obj].tail(1).index
         if len(index) <1:
             print("缺少股票数据")
-            return (None,None,None,None)
+            return (None,None,None,None,None,None)
         # set_trace()
-        result = df.iloc[index[0]:index[0] + 2]
+        result = df.iloc[index[0]:index[0] + 3]
     else:
         print(f"文件 {file_path} 不存在")
-        return (None,None,None,None)
+        return (None,None,None,None,None,None)
 
-    if len(result) == 2:
+    if len(result) == 3:
+        # set_trace()
         t1 = result.iloc[0,0]
         t2 = result.iloc[1,0]
+        t3 = result.iloc[2,0]
         p1 = result.iloc[0,2]
         p2 = result.iloc[1,2]
-        return (t1,p1,t2,p2)
+        p3 = result.iloc[2,2]
+        return (t1,p1,t2,p2,t3, p3)
     else:
-        return (None,None,None,None)
+        return (None,None,None,None,None,None)
 
 
 # if __name__ == "__main__":
@@ -141,7 +145,7 @@ def process_year(year, base_path):
     common_news = common_news.dropna(subset=["NewsContent"])
     news_num = len(common_news)
 
-    data_df = pd.DataFrame(columns=['newsid', 'time', 'title', 'symbol', 'shortname', 't1', 'p1', 't2', 'p2', 'tag', 'length', 'content'])
+    data_df = pd.DataFrame(columns=['newsid', 'time', 'title', 'symbol', 'shortname', 't1', 'p1', 't2', 'p2', 't3', 'p3', 'tag', 'length', 'content'])
 
     for x in range(news_num):
         if x % 1000 == 0:
@@ -149,7 +153,7 @@ def process_year(year, base_path):
         symbol = common_news.iloc[x, 3]
         time = common_news.iloc[x, 7]
         price_path = base_path + "不复权"
-        t1, p1, t2, p2 = get_stock_price_at_time(price_path, symbol, time)
+        t1, p1, t2, p2, t3, p3 = get_stock_price_at_time(price_path, symbol, time)
         if t1 is None:
             continue
         newsid = common_news.iloc[x, 0]
@@ -162,7 +166,7 @@ def process_year(year, base_path):
             continue
         length = len(content)
         tag = 1 if p2 - p1 >= 0 else 0
-        data_df.loc[x] = [newsid, time, title, symbol, shortname, t1, p1, t2, p2, tag, length, content]
+        data_df.loc[x] = [newsid, time, title, symbol, shortname, t1, p1, t2, p2, t3, p3, tag, length, content]
 
     output_path = f'data_{year}.csv'
     data_df.to_csv(output_path, index=False, encoding='utf-8')
