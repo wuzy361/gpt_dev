@@ -8,14 +8,15 @@ import ast
 
 if __name__ == "__main__":
 #    years = [2009,2010,2011]
-   years = [2021,2022,2023]
+#    years = [2021,2022,2023]
+   years = [2008]
 
    for year in years:
-       data_path = "data_" + str(year) + "_with_emb.csv" 
+       data_path = "data_" + str(year) + ".csv" 
        df = pd.read_csv(data_path,on_bad_lines='skip')
        data_num = len(df)
        time_df = pd.DataFrame(columns=['newsid', 'time', "symbol" , "t2", "p2", "t3", "p3"])
-
+       set_trace()
        print(data_num)
 
        for x in range(data_num):
@@ -32,6 +33,6 @@ if __name__ == "__main__":
                print(x)
            
        time_df.to_csv(f'time_{year}.csv', index=False,  encoding='utf-8')
-       print(f"save {year} train data")
+       print(f"save {year}  data time")
       
 #    set_trace()
